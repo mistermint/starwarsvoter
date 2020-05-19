@@ -1,4 +1,5 @@
 #!/bin/bash
+TOTAL_VOTES=0
 sudo service tor start
 while true; do
 	echo "Restarting Tor..."
@@ -6,7 +7,9 @@ while true; do
 	sudo service tor reload
 	sleep 1s
 	echo "Restarted Tor"
-	for i in 1 2 3 4 5; do
+	i=0
+	while true; do
+		i=`expr $i + 1`   
 		echo "Attempting vote $i..."
 		RESULT=`curl --socks5 127.0.0.1:9050 'https://voting.playbuzz.com/poll/' \
 			-H 'authority: voting.playbuzz.com' \
@@ -26,7 +29,9 @@ while true; do
 			echo "Request failed, refreshing IP..."
 			break
 		else
+			TOTAL_VOTES=`expr $TOTAL_VOTES + 1`
 			echo "Request success: $RESULT"
+			echo "Total votes this session: $TOTAL_VOTES"
 		fi
 	done
 done
